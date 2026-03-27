@@ -6,6 +6,7 @@ const optionsDiv = document.getElementById('options');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+// --- Game State Variables ---
 let studentName = "";
 let score = 0;
 let combo = 1; 
@@ -18,10 +19,14 @@ let currentClawSize = 18;
 const baseClawSize = 18;
 let launchSpeed = 18;
 let caughtItem = null;
-let bossDefeated = false;
+let bossActive = false;
 let shakeAmount = 0;
 let isFrozen = false;
 const minerPos = { x: canvas.width / 2, y: 150 };
+
+// --- Boss Battle Variables ---
+let boss = { x: canvas.width / 2, y: canvas.height - 150, hp: 100, targetElement: "Oxygen", dir: 2 };
+let projectiles = [];
 
 const matterTypes = [
     { name: "Gold (Au)", type: "Element", color: "#FFD700", textColor: "#000", size: 45, glow: "#FFF5B7" },
@@ -38,6 +43,7 @@ let bgStars = [];
 let floatingTexts = [];
 let powerUps = [];
 
+// --- Classes ---
 class Particle {
     constructor(x, y, color) {
         this.x = x; this.y = y;
@@ -57,22 +63,25 @@ class Particle {
     }
 }
 
-class PowerUp {
-    constructor() {
-        this.x = Math.random() * (canvas.width - 100) + 50;
-        this.y = -50;
-        this.type = Math.random() > 0.5 ? 'FREEZE' : 'MAGNET';
-        this.color = this.type === 'FREEZE' ? '#00fbff' : '#ffcf00';
+class Projectile {
+    constructor(x, y, angle, data) {
+        this.x = x; this.y = y;
+        this.angle = angle;
+        this.speed = 12;
+        this.data = data; // The element being "shot"
     }
-    update() { this.y += 2.5; }
+    update() {
+        this.x += Math.sin(this.angle) * this.speed;
+        this.y += Math.cos(this.angle) * this.speed;
+    }
     draw() {
-        ctx.fillStyle = this.color;
-        ctx.beginPath(); ctx.arc(this.x, this.y, 20, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = "black"; ctx.font = "bold 14px Arial"; ctx.textAlign = "center";
-        ctx.fillText(this.type[0], this.x, this.y + 5);
+        ctx.fillStyle = this.data.color;
+        ctx.beginPath(); ctx.arc(this.x, this.y, 15, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "white"; ctx.stroke();
     }
 }
 
+// --- core Functions ---
 function startGame() {
     studentName = document.getElementById('student-name').value || "Hero";
     document.getElementById('user-display').innerText = studentName;
@@ -81,13 +90,13 @@ function startGame() {
     initBG();
     initItems();
     startTimer();
-    playSound('bgMusic');
-    setInterval(() => { if(gameState === 'swinging') powerUps.push(new PowerUp()); }, 15000);
+    if(typeof playSound === 'function') playSound('bgMusic');
+    setInterval(() => { if(gameState === 'swinging') powerUps.push({x: Math.random()*canvas.width, y: -50, type: Math.random() > 0.5 ? 'FREEZE' : 'MAGNET'}); }, 20000);
 }
 
 function initItems() {
     items = [];
-    for(let i=0; i<12; i++) {
+    for(let i=0; i<10; i++) {
         items.push({
             x: Math.random() * (canvas.width - 200) + 100,
             y: Math.random() * (canvas.height - 400) + 350,
@@ -106,6 +115,7 @@ function draw() {
     if (shakeAmount > 0) { ctx.translate(Math.random()*shakeAmount, Math.random()*shakeAmount); shakeAmount *= 0.9; }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Stars
     bgStars.forEach(star => {
         ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(star.x, star.y, star.s, 0, Math.PI*2); ctx.fill();
         star.y += 0.3; if(star.y > canvas.height) star.y = 0;
@@ -113,81 +123,101 @@ function draw() {
 
     particles.forEach((p, i) => { p.update(); p.draw(); if(p.alpha <= 0) particles.splice(i, 1); });
 
-    powerUps.forEach((pu, i) => { 
-        pu.update(); pu.draw(); 
-        if(pu.y > canvas.height) powerUps.splice(i, 1); 
-    });
-
+    // Floating Texts
     floatingTexts.forEach((ft, i) => {
         ctx.fillStyle = ft.color; ctx.font = "bold 25px Arial"; ctx.globalAlpha = ft.alpha;
         ctx.fillText(ft.text, ft.x, ft.y); ft.y -= 1.5; ft.alpha -= 0.01;
         if(ft.alpha <= 0) floatingTexts.splice(i, 1);
     });
 
-    // Miner UI
+    if (bossActive) {
+        drawBoss();
+    } else if (gameState !== 'victory' && gameState !== 'waiting') {
+        drawMiningPhase();
+    }
+    
+    // Draw Miner
     ctx.fillStyle = "#FF6B6B";
     ctx.beginPath(); ctx.roundRect(minerPos.x - 30, minerPos.y - 40, 60, 50, 10); ctx.fill();
 
-    if (gameState !== 'boss' && gameState !== 'victory' && gameState !== 'waiting') {
-        items.forEach(item => {
-            item.pulse += 0.05;
-            let s = item.data.size + Math.sin(item.pulse) * 3;
-            ctx.shadowBlur = 15; ctx.shadowColor = item.data.glow;
-            ctx.fillStyle = item.data.color;
-            ctx.beginPath(); ctx.arc(item.x, item.y, s, 0, Math.PI * 2); ctx.fill();
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = item.data.textColor;
-            ctx.font = `bold ${item.data.size * 0.38}px Arial`;
-            ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            ctx.fillText(item.data.name, item.x, item.y);
-        });
-
-        let endX = minerPos.x + Math.sin(angle) * clawLength;
-        let endY = minerPos.y + Math.cos(angle) * clawLength;
-        
-        ctx.strokeStyle = "white"; ctx.lineWidth = 4;
-        ctx.beginPath(); ctx.moveTo(minerPos.x, minerPos.y); ctx.lineTo(endX, endY); ctx.stroke();
-        ctx.fillStyle = "#FFD93D"; ctx.beginPath(); ctx.arc(endX, endY, currentClawSize, 0, Math.PI * 2); ctx.fill();
-        
-        if(gameState === 'launching' || gameState === 'returning') particles.push(new Particle(endX, endY, "#FFD93D"));
-    }
-    
     ctx.restore();
     update();
     requestAnimationFrame(draw);
 }
 
+function drawMiningPhase() {
+    items.forEach(item => {
+        item.pulse += 0.05;
+        let s = item.data.size + Math.sin(item.pulse) * 3;
+        ctx.fillStyle = item.data.color;
+        ctx.beginPath(); ctx.arc(item.x, item.y, s, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = item.data.textColor;
+        ctx.font = `bold ${item.data.size * 0.38}px Arial`;
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(item.data.name, item.x, item.y);
+    });
+
+    let endX = minerPos.x + Math.sin(angle) * clawLength;
+    let endY = minerPos.y + Math.cos(angle) * clawLength;
+    ctx.strokeStyle = "white"; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(minerPos.x, minerPos.y); ctx.lineTo(endX, endY); ctx.stroke();
+    ctx.fillStyle = "#FFD93D"; ctx.beginPath(); ctx.arc(endX, endY, currentClawSize, 0, Math.PI * 2); ctx.fill();
+}
+
+function drawBoss() {
+    // Draw Boss Molecule
+    ctx.fillStyle = "#8e44ad";
+    ctx.shadowBlur = 30; ctx.shadowColor = "#e74c3c";
+    ctx.beginPath(); ctx.arc(boss.x, boss.y, 60, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Boss Info
+    ctx.fillStyle = "white";
+    ctx.font = "bold 20px Arial";
+    ctx.fillText(`BOSS HP: ${boss.hp}`, boss.x, boss.y - 80);
+    ctx.fillStyle = "#FFD93D";
+    ctx.fillText(`WANTED: ${boss.targetElement}`, boss.x, boss.y + 100);
+
+    // Draw Projectiles
+    projectiles.forEach((p, i) => {
+        p.update(); p.draw();
+        if (Math.hypot(p.x - boss.x, p.y - boss.y) < 60) {
+            checkBossHit(p);
+            projectiles.splice(i, 1);
+        }
+        if (p.y > canvas.height) projectiles.splice(i, 1);
+    });
+
+    // Draw "Cannon" direction
+    let endX = minerPos.x + Math.sin(angle) * 60;
+    let endY = minerPos.y + Math.cos(angle) * 60;
+    ctx.strokeStyle = "#3498db"; ctx.lineWidth = 10;
+    ctx.beginPath(); ctx.moveTo(minerPos.x, minerPos.y); ctx.lineTo(endX, endY); ctx.stroke();
+}
+
 function update() {
-    if (score >= 1500 && !bossDefeated && gameState === 'swinging') { startBossLevel(); return; }
-    
-    if (gameState === 'swinging') {
+    if (score >= 2000 && !bossActive) { startBossPhase(); }
+
+    if (bossActive) {
+        angle += angleDir;
+        if (Math.abs(angle) > 1.3) angleDir *= -1;
+        boss.x += boss.dir;
+        if (boss.x > canvas.width - 100 || boss.x < 100) boss.dir *= -1;
+    } else if (gameState === 'swinging') {
         angle += angleDir;
         if (Math.abs(angle) > 1.3) angleDir *= -1;
     } else if (gameState === 'launching') {
         clawLength += launchSpeed;
         let ex = minerPos.x + Math.sin(angle) * clawLength;
         let ey = minerPos.y + Math.cos(angle) * clawLength;
-
-        powerUps.forEach((pu, i) => {
-            if(Math.hypot(ex - pu.x, ey - pu.y) < 30) {
-                powerUps.splice(i, 1);
-                applyPowerUp(pu.type);
-            }
-        });
-
         items.forEach((item, index) => {
             if (Math.hypot(ex - item.x, ey - item.y) < item.data.size) {
                 caughtItem = item; items.splice(index, 1); gameState = 'returning';
-                shakeAmount = 8; playSound('catch');
             }
         });
         if (clawLength > canvas.height - 50) gameState = 'returning';
     } else if (gameState === 'returning') {
         clawLength -= launchSpeed;
-        if (caughtItem) {
-            caughtItem.x = minerPos.x + Math.sin(angle) * clawLength;
-            caughtItem.y = minerPos.y + Math.cos(angle) * clawLength;
-        }
         if (clawLength <= 80) {
             if (caughtItem) startQuiz(caughtItem.data);
             else gameState = 'swinging';
@@ -196,31 +226,27 @@ function update() {
     }
 }
 
-function applyPowerUp(type) {
-    playSound('powerup');
-    if(type === 'FREEZE') {
-        isFrozen = true;
-        floatingTexts.push({text: "TIME FROZEN!", x: minerPos.x, y: minerPos.y, alpha: 1, color: "#00fbff"});
-        setTimeout(() => isFrozen = false, 8000);
+function startBossPhase() {
+    bossActive = true;
+    floatingTexts.push({text: "BOSS INBOUND!", x: canvas.width/2, y: canvas.height/2, alpha: 1, color: "red"});
+}
+
+function checkBossHit(p) {
+    if (p.data.name.includes(boss.targetElement)) {
+        boss.hp -= 20;
+        shakeAmount = 20;
+        score += 500;
+        boss.targetElement = ["Gold", "Silver", "Water", "Salt"][Math.floor(Math.random()*4)];
+        if (boss.hp <= 0) showVictoryScreen();
     } else {
-        currentClawSize = 45;
-        floatingTexts.push({text: "MAGNET CLAW!", x: minerPos.x, y: minerPos.y, alpha: 1, color: "#ffcf00"});
-        setTimeout(() => currentClawSize = baseClawSize, 10000);
+        score -= 100;
+        floatingTexts.push({text: "WRONG ELEMENT!", x: boss.x, y: boss.y, alpha: 1, color: "orange"});
     }
 }
 
 function checkAnswer(isCorrect) {
-    const comboEl = document.getElementById('combo-display');
-    if (isCorrect) {
-        playSound('correct');
-        let gain = 100 * combo; score += gain;
-        floatingTexts.push({text: `+${gain}`, x: minerPos.x, y: minerPos.y, alpha: 1, color: "#6BCB77"});
-        combo++; comboEl.innerText = `🔥 COMBO X${combo}`; comboEl.style.display = 'block';
-    } else {
-        playSound('wrong');
-        score -= 50; combo = 1; comboEl.style.display = 'none';
-        shakeAmount = 15;
-    }
+    if (isCorrect) { score += 100; combo++; } 
+    else { score -= 50; combo = 1; }
     document.getElementById('score').innerText = `⭐ Points: ${score}`;
     quizOverlay.style.display = 'none';
     gameState = 'swinging';
@@ -231,7 +257,6 @@ function startQuiz(data) {
     gameState = 'quiz';
     quizOverlay.style.display = 'block';
     document.getElementById('quiz-title').innerText = `✨ Scanned ${data.name}!`;
-    document.getElementById('quiz-desc').innerText = "Identify the matter type:";
     optionsDiv.innerHTML = '';
     ["Element", "Compound", "Mixture"].forEach(choice => {
         let b = document.createElement('button'); b.innerText = choice;
@@ -242,7 +267,7 @@ function startQuiz(data) {
 
 function startTimer() {
     setInterval(() => {
-        if (gameState !== 'waiting' && gameState !== 'victory' && !isFrozen) {
+        if (gameState !== 'waiting' && gameState !== 'victory') {
             timeLeft--;
             let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('timer').innerText = `⏰ Time: ${m}:${s < 10 ? '0' : ''}${s}`;
@@ -253,6 +278,16 @@ function startTimer() {
 
 function showVictoryScreen() { gameState = 'victory'; document.getElementById('victory-overlay').style.display = 'block'; }
 function toggleGlossary(s) { document.getElementById('glossary-overlay').style.display = s ? 'block' : 'none'; }
-window.addEventListener('mousedown', () => { if (gameState === 'swinging') { gameState = 'launching'; playSound('launch'); } });
+
+window.addEventListener('mousedown', () => { 
+    if (bossActive) {
+        // Fire logic
+        projectiles.push(new Projectile(minerPos.x, minerPos.y, angle, matterTypes[Math.floor(Math.random()*matterTypes.length)]));
+        if(typeof playSound === 'function') playSound('launch');
+    } else if (gameState === 'swinging') { 
+        gameState = 'launching'; 
+        if(typeof playSound === 'function') playSound('launch');
+    } 
+});
 
 draw();
