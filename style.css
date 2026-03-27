@@ -1,13 +1,13 @@
 body { 
     margin: 0; 
-    background: #2c3e50; 
+    background: #0f0c29; 
     font-family: 'Comic Sans MS', sans-serif; 
     overflow: hidden; 
     color: white; 
 }
 
 canvas { 
-    background: linear-gradient(#1a2a6c 0%, #b21f1f 40%, #fdbb2d 100%); 
+    background: linear-gradient(#0f0c29, #302b63, #24243e); 
     display: block; 
     margin: 0 auto; 
 }
@@ -16,9 +16,19 @@ canvas {
     position: absolute; 
     top: 15px; 
     left: 20px; 
-    text-shadow: 2px 2px #000;
+    text-shadow: 2px 2px 4px #000;
     z-index: 5;
     pointer-events: none;
+}
+
+#user-display {
+    color: #FFD93D;
+    animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 5px #fff, 0 0 10px #FFD93D; }
+    to { text-shadow: 0 0 10px #fff, 0 0 20px #FFD93D; }
 }
 
 #glossary-btn { 
@@ -34,7 +44,10 @@ canvas {
     font-weight: bold;
     box-shadow: 0 4px #c44545;
     z-index: 10;
+    transition: transform 0.2s;
 }
+
+#glossary-btn:hover { transform: scale(1.1); }
 
 .modal { 
     display: none; 
@@ -50,18 +63,19 @@ canvas {
     width: 85%; 
     max-width: 450px; 
     color: #333;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 0 50px rgba(255, 217, 61, 0.3);
     text-align: center;
 }
 
 .equation { 
-    font-size: 24px; 
-    background: #f0f0f0; 
-    padding: 15px; 
-    border: 3px dashed #FF6B6B;
+    font-size: 26px; 
+    background: #f8f9fa; 
+    padding: 20px; 
+    border: 3px dashed #4D96FF;
     border-radius: 15px;
     margin: 15px 0;
-    color: #222;
+    color: #2c3e50;
+    font-weight: bold;
 }
 
 button { 
