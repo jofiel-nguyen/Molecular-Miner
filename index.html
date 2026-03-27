@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Molecular Miner: Glow Edition!</title>
+    <title>Molecular Miner: Turbo Edition</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="ui">
         <h2 id="score">⭐ Points: 0</h2>
+        <h2 id="combo-display" style="color: #FF6B6B; display: none;">🔥 COMBO X1</h2>
         <h3 id="timer">⏰ Time: 05:00</h3>
         <p id="player-tag">Hero: <span id="user-display">---</span></p>
     </div>
@@ -32,25 +33,21 @@
 
     <div id="glossary-overlay" class="modal">
         <h2 style="color: #4D96FF;">🔬 Science Secrets</h2>
-        <div class="guide-item"><b>Element:</b> Only ONE type of atom!</div>
-        <div class="guide-item"><b>Compound:</b> Different atoms bonded together!</div>
-        <div class="guide-item"><b>Mixture:</b> Mixed but not chemically bonded!</div>
-        <hr>
-        <div class="guide-item"><b>Conservation of Mass:</b> Mass is never created or destroyed. Atoms In = Atoms Out!</div>
+        <p><b>Element:</b> Pure substance, one type of atom.</p>
+        <p><b>Compound:</b> Atoms chemically bonded.</p>
+        <p><b>Mixture:</b> Physically mixed, not bonded.</p>
         <button onclick="toggleGlossary(false)">Back to Play!</button>
     </div>
 
     <div id="victory-overlay" class="modal">
         <h1 style="color: #FFD93D;">🌈 MISSION COMPLETE!</h1>
         <h2 id="final-score-display">Total Stars: 0</h2>
-        <div id="leaderboard-section">
-            <h3>🏆 Hall of Fame</h3>
-            <ul id="leaderboard-list"></ul>
-        </div>
         <button onclick="location.reload()">Play Again!</button>
     </div>
 
     <canvas id="gameCanvas"></canvas>
-    <script src="script.js"></script>
+
+    <script src="audioScript.js"></script>
+    <script src="logicScript.js"></script>
 </body>
 </html>
