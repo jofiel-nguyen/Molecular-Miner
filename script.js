@@ -7,16 +7,18 @@ const optionsDiv = document.getElementById('options');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+// --- GAME STATE ---
 let score = 0;
 let gameState = 'swinging'; 
 let angle = 0;
-let angleDir = 0.025;
+let angleDir = 0.025; // Speed of swing
 let clawLength = 60;
-let launchSpeed = 10;
+let launchSpeed = 12;
 let caughtItem = null;
 let bossDefeated = false;
 const minerPos = { x: canvas.width / 2, y: 80 };
 
+// --- DATA: TEKS 8.6 MATTERS ---
 const matterTypes = [
     { name: "Gold (Au)", type: "Element", color: "#f1c40f", size: 20 },
     { name: "Silver (Ag)", type: "Element", color: "#bdc3c7", size: 18 },
@@ -28,46 +30,85 @@ const matterTypes = [
 
 let items = [];
 
+// --- INITIALIZATION ---
 function initItems() {
     items = [];
-    for (let i = 0; i < 10; i++) {
-        items.push({
-            x: Math.random() * (canvas.width - 100) + 50,
-            y: Math.random() * (canvas.height - 350) + 250,
+    while (items.length < 10) {
+        let newItem = {
+            x: Math.random() * (canvas.width - 150) + 75,
+            y: Math.random() * (canvas.height - 400) + 250,
             data: matterTypes[Math.floor(Math.random() * matterTypes.length)]
+        };
+        
+        // Prevent overlapping for better readability
+        let tooClose = items.some(item => {
+            let dx = item.x - newItem.x;
+            let dy = item.y - newItem.y;
+            return Math.sqrt(dx*dx + dy*dy) < 80; 
         });
+
+        if (!tooClose) items.push(newItem);
     }
+}
+
+// --- DRAWING FUNCTIONS ---
+function drawMiner(x, y) {
+    // Drone Arms
+    ctx.strokeStyle = "#bdc3c7";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(x - 40, y); ctx.lineTo(x + 40, y);
+    ctx.stroke();
+
+    // Drone Body (Turns red in Boss Mode)
+    ctx.fillStyle = (score >= 500 && !bossDefeated) ? "#e74c3c" : "#34495e";
+    ctx.roundRect(x - 25, y - 15, 50, 30, 5);
+    ctx.fill();
+    
+    // Glowing Science Sensor
+    ctx.fillStyle = (score >= 500 && !bossDefeated) ? "#ff7675" : "#55efc4";
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.fill();
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // UI Background
-    ctx.fillStyle = (score >= 500 && !bossDefeated) ? "#c0392b" : "#5d4037"; 
+    // Top UI Bar
+    ctx.fillStyle = (score >= 500 && !bossDefeated) ? "#c0392b" : "#2c3e50"; 
     ctx.fillRect(0, 0, canvas.width, 120);
     
-    // Character
-    ctx.fillStyle = "white"; ctx.font = "40px Arial"; 
-    ctx.fillText(score >= 500 && !bossDefeated ? "🛡️" : "👴", minerPos.x - 20, minerPos.y);
+    drawMiner(minerPos.x, minerPos.y);
 
     if (gameState !== 'boss') {
         items.forEach(item => {
+            // Draw Matter
             ctx.fillStyle = item.data.color;
             ctx.beginPath(); ctx.arc(item.x, item.y, item.data.size, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = "white"; ctx.font = "bold 12px Arial"; ctx.fillText(item.data.name, item.x - 25, item.y + 5);
+            // Draw Label
+            ctx.fillStyle = "white"; 
+            ctx.font = "bold 13px Arial"; 
+            ctx.textAlign = "center";
+            ctx.fillText(item.data.name, item.x, item.y + item.data.size + 15);
         });
 
+        // Draw Claw & Line
         let endX = minerPos.x + Math.sin(angle) * clawLength;
         let endY = minerPos.y + Math.cos(angle) * clawLength;
         ctx.strokeStyle = "#ecf0f1"; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.moveTo(minerPos.x, minerPos.y); ctx.lineTo(endX, endY); ctx.stroke();
-        ctx.fillStyle = "#95a5a6"; ctx.fillRect(endX - 12, endY, 24, 12);
+        
+        // Mechanical Claw Head
+        ctx.fillStyle = "#95a5a6"; 
+        ctx.fillRect(endX - 15, endY, 30, 15);
     }
 
     update();
     requestAnimationFrame(draw);
 }
 
+// --- LOGIC ---
 function update() {
     if (score >= 500 && !bossDefeated && gameState !== 'quiz' && gameState !== 'boss') {
         startBossLevel();
@@ -82,7 +123,7 @@ function update() {
         items.forEach((item, index) => {
             let dx = (minerPos.x + Math.sin(angle) * clawLength) - item.x;
             let dy = (minerPos.y + Math.cos(angle) * clawLength) - item.y;
-            if (Math.sqrt(dx*dx + dy*dy) < item.data.size + 10) {
+            if (Math.sqrt(dx*dx + dy*dy) < item.data.size + 15) {
                 caughtItem = item; items.splice(index, 1); gameState = 'returning';
             }
         });
@@ -104,26 +145,28 @@ function update() {
 function startBossLevel() {
     gameState = 'boss';
     quizOverlay.style.display = 'block';
-    document.getElementById('quiz-title').innerText = `🔥 BOSS LEVEL: Final Balancing`;
-    document.getElementById('quiz-desc').innerHTML = `Balance this equation to save the mine!<br><div class="equation">? Fe + ? O₂ → 2 Fe₂O₃</div>`;
+    
+    const bossPool = [
+        { q: "? Fe + ? O₂ → 2 Fe₂O₃", options: ["4 Fe + 3 O₂", "2 Fe + 3 O₂", "3 Fe + 2 O₂"], correct: "4 Fe + 3 O₂" },
+        { q: "? H₂ + ? O₂ → 2 H₂O", options: ["2 H₂ + 1 O₂", "1 H₂ + 2 O₂", "2 H₂ + 2 O₂"], correct: "2 H₂ + 1 O₂" }
+    ];
+    
+    let picked = bossPool[Math.floor(Math.random() * bossPool.length)];
+    
+    document.getElementById('quiz-title').innerText = `⚠️ BOSS LEVEL: Emergency Balancing`;
+    document.getElementById('quiz-desc').innerHTML = `Balance the atoms to stabilize the mine!<br><div class="equation">${picked.q}</div>`;
     optionsDiv.innerHTML = '';
     
-    const bossOptions = [
-        { t: "2 Fe + 3 O₂", v: false },
-        { t: "4 Fe + 3 O₂", v: true },
-        { t: "4 Fe + 2 O₂", v: false }
-    ];
-
-    bossOptions.forEach(opt => {
+    picked.options.forEach(opt => {
         let btn = document.createElement('button');
-        btn.innerText = opt.t;
+        btn.innerText = opt;
         btn.onclick = () => {
-            if (opt.v) {
+            if (opt === picked.correct) {
                 bossDefeated = true; score += 1000;
-                alert("CONGRATULATIONS! You saved the mine!");
+                alert("MISSION ACCOMPLISHED! Mass is conserved!");
                 checkAnswer(true);
             } else {
-                score -= 100; alert("Unbalanced! Try again.");
+                score -= 100; alert("ERROR: Atoms are not balanced!");
             }
         };
         optionsDiv.appendChild(btn);
@@ -142,8 +185,8 @@ function startQuiz(data) {
 }
 
 function showClassificationQuiz(data) {
-    document.getElementById('quiz-title').innerText = `Target: ${data.name}`;
-    document.getElementById('quiz-desc').innerText = "Classify this matter:";
+    document.getElementById('quiz-title').innerText = `Scanning: ${data.name}`;
+    document.getElementById('quiz-desc').innerText = "Select the correct classification:";
     optionsDiv.innerHTML = '';
     ["Element", "Compound", "Mixture"].forEach(choice => {
         let btn = document.createElement('button');
@@ -154,12 +197,16 @@ function showClassificationQuiz(data) {
 }
 
 function showConservationQuiz() {
-    const eqs = [{ q: "Mg + O₂ → MgO", a: false }, { q: "2Mg + O₂ → 2MgO", a: true }];
+    const eqs = [
+        { q: "N₂ + 3 H₂ → 2 NH₃", a: true },
+        { q: "CH₄ + O₂ → CO₂ + H₂O", a: false },
+        { q: "2 Na + Cl₂ → 2 NaCl", a: true }
+    ];
     let picked = eqs[Math.floor(Math.random() * eqs.length)];
     document.getElementById('quiz-title').innerText = `Conservation Check!`;
-    document.getElementById('quiz-desc').innerHTML = `Is this balanced?<br><div class="equation">${picked.q}</div>`;
+    document.getElementById('quiz-desc').innerHTML = `Is this equation balanced?<br><div class="equation">${picked.q}</div>`;
     optionsDiv.innerHTML = '';
-    [{t:"Yes", v:true}, {t:"No", v:false}].forEach(opt => {
+    [{t:"Yes (Balanced)", v:true}, {t:"No (Unbalanced)", v:false}].forEach(opt => {
         let btn = document.createElement('button');
         btn.innerText = opt.t;
         btn.onclick = () => checkAnswer(opt.v === picked.a);
@@ -168,8 +215,13 @@ function showConservationQuiz() {
 }
 
 function checkAnswer(isCorrect) {
-    if (isCorrect && gameState !== 'boss') { score += 100; }
-    else if (!isCorrect) { score -= 50; }
+    if (isCorrect && gameState !== 'boss') { 
+        score += 100;
+        // Tailor: Difficulty increases slightly with every win
+        angleDir += (angleDir > 0) ? 0.002 : -0.002;
+    } else if (!isCorrect) { 
+        score -= 50; 
+    }
     document.getElementById('score').innerText = `Score: ${score}`;
     quizOverlay.style.display = 'none';
     gameState = 'swinging';
