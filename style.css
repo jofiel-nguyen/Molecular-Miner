@@ -1,31 +1,24 @@
 body { 
     margin: 0; 
-    background: #4D96FF; 
+    background: #2c3e50; 
     font-family: 'Comic Sans MS', sans-serif; 
     overflow: hidden; 
     color: white; 
 }
 
 canvas { 
-    background: linear-gradient(#87CEEB 0%, #6BCB77 30%, #5d4037 30%); 
+    background: linear-gradient(#1a2a6c 0%, #b21f1f 40%, #fdbb2d 100%); 
     display: block; 
     margin: 0 auto; 
-    border-bottom: 15px solid #3d2b1f; 
 }
 
 #ui { 
     position: absolute; 
     top: 15px; 
     left: 20px; 
-    text-align: left; 
-    pointer-events: none;
     text-shadow: 2px 2px #000;
-}
-
-#player-tag {
-    font-size: 18px;
-    color: #FFD93D;
-    margin-top: 5px;
+    z-index: 5;
+    pointer-events: none;
 }
 
 #glossary-btn { 
@@ -57,28 +50,23 @@ canvas {
     width: 85%; 
     max-width: 450px; 
     color: #333;
-    box-shadow: 0 10px 0 #d4ac0d;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
     text-align: center;
 }
 
-.guide-item {
-    margin-bottom: 15px;
-    text-align: left;
-    font-size: 16px;
-}
-
-input[type="text"] {
-    padding: 15px;
-    font-size: 20px;
+.equation { 
+    font-size: 24px; 
+    background: #f0f0f0; 
+    padding: 15px; 
+    border: 3px dashed #FF6B6B;
     border-radius: 15px;
-    border: 3px solid #4D96FF;
-    width: 80%;
-    margin-top: 10px;
+    margin: 15px 0;
+    color: #222;
 }
 
 button { 
-    padding: 15px 30px; 
-    margin: 10px; 
+    padding: 12px 25px; 
+    margin: 8px; 
     font-size: 18px; 
     cursor: pointer; 
     background: #6BCB77; 
@@ -90,12 +78,3 @@ button {
 }
 
 button:active { transform: translateY(4px); box-shadow: none; }
-
-.equation { 
-    font-size: 24px; 
-    background: #F9F9F9; 
-    padding: 15px; 
-    border: 3px dashed #FF6B6B;
-    border-radius: 15px;
-    margin: 15px 0;
-}
