@@ -19,6 +19,7 @@ let clawLength = 70;
 let launchSpeed = 14;
 let caughtItem = null;
 let bossDefeated = false;
+let timerStarted = false; // Prevents timer from starting before click
 const minerPos = { x: canvas.width / 2, y: 150 };
 
 const matterTypes = [
@@ -32,14 +33,29 @@ const matterTypes = [
 
 let items = [];
 
+// FIXED FUNCTION: This now hides the UI and starts everything correctly
 function startGame() {
     const input = document.getElementById('student-name').value;
-    if (!input) return alert("Enter your name!");
+    if (!input) {
+        alert("Enter your name first!");
+        return;
+    }
     studentName = input;
+    // Update the name on the screen
+    document.getElementById('user-display').innerText = studentName;
+    
+    // Hide the start screen
     startOverlay.style.display = 'none';
+    
+    // Change game state to start the claw
     gameState = 'swinging';
     initItems();
-    startTimer();
+    
+    // Start the timer
+    if(!timerStarted) {
+        startTimer();
+        timerStarted = true;
+    }
 }
 
 function initItems() {
@@ -56,24 +72,28 @@ function initItems() {
 }
 
 function startTimer() {
-    setInterval(() => {
-        if (gameState === 'swinging' || gameState === 'launching' || gameState === 'returning') {
+    const timerLoop = setInterval(() => {
+        // Only run timer if we are in the game
+        if (gameState !== 'waiting' && gameState !== 'victory') {
             timeLeft--;
             let m = Math.floor(timeLeft / 60);
             let s = timeLeft % 60;
             document.getElementById('timer').innerText = `⏰ Time: ${m}:${s < 10 ? '0' : ''}${s}`;
-            if (timeLeft <= 0) showVictoryScreen();
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerLoop);
+                showVictoryScreen();
+            }
         }
     }, 1000);
 }
 
 function drawMiner(x, y) {
-    // Draw Cute Robot
     ctx.fillStyle = "#FF6B6B";
     ctx.beginPath(); ctx.roundRect(x - 30, y - 40, 60, 50, 10); ctx.fill();
-    ctx.fillStyle = "white"; // Screen
+    ctx.fillStyle = "white"; 
     ctx.beginPath(); ctx.roundRect(x - 20, y - 30, 40, 25, 5); ctx.fill();
-    ctx.fillStyle = (score >= 500 && !bossDefeated) ? "red" : "#4D96FF"; // Eyes
+    ctx.fillStyle = (score >= 500 && !bossDefeated) ? "red" : "#4D96FF"; 
     ctx.beginPath(); ctx.arc(x - 8, y - 18, 4, 0, Math.PI * 2); ctx.arc(x + 8, y - 18, 4, 0, Math.PI * 2); ctx.fill();
 }
 
@@ -87,9 +107,7 @@ function draw() {
             ctx.beginPath(); ctx.arc(item.x, item.y, item.data.size, 0, Math.PI * 2); ctx.fill();
             ctx.strokeStyle = "white"; ctx.lineWidth = 3; ctx.stroke();
             ctx.fillStyle = "white"; ctx.font = "bold 14px Arial"; ctx.textAlign = "center";
-            ctx.shadowBlur = 4; ctx.shadowColor = "black";
             ctx.fillText(item.data.name, item.x, item.y + 5);
-            ctx.shadowBlur = 0;
         });
 
         let endX = minerPos.x + Math.sin(angle) * clawLength;
@@ -103,7 +121,10 @@ function draw() {
 }
 
 function update() {
-    if (score >= 500 && !bossDefeated && gameState === 'swinging') return startBossLevel();
+    if (score >= 500 && !bossDefeated && gameState === 'swinging') {
+        startBossLevel();
+        return;
+    }
     if (gameState === 'swinging') {
         angle += angleDir;
         if (Math.abs(angle) > 1.2) angleDir *= -1;
@@ -133,11 +154,11 @@ function startBossLevel() {
     gameState = 'boss';
     quizOverlay.style.display = 'block';
     document.getElementById('quiz-title').innerText = "🔥 FINAL BOSS!";
-    document.getElementById('quiz-desc').innerHTML = "Balance the atoms!<br><div class='equation'>? Fe + ? O₂ → 2 Fe₂O₃</div>";
+    document.getElementById('quiz-desc').innerHTML = "Balance the atoms!<br><div class='equation'>4 Fe + ? O₂ → 2 Fe₂O₃</div>";
     optionsDiv.innerHTML = '';
-    [{t:"4 Fe + 3 O₂", v:true}, {t:"2 Fe + 2 O₂", v:false}].forEach(o => {
+    [{t:"3 O₂", v:true}, {t:"2 O₂", v:false}].forEach(o => {
         let b = document.createElement('button'); b.innerText = o.t;
-        b.onclick = () => { if (o.v) { bossDefeated = true; score += 1000; checkAnswer(true); } else { score -= 100; alert("Oops! Try again!"); }};
+        b.onclick = () => { if (o.v) { bossDefeated = true; score += 1000; checkAnswer(true); } else { score -= 100; alert("Not balanced!"); }};
         optionsDiv.appendChild(b);
     });
 }
@@ -145,7 +166,7 @@ function startBossLevel() {
 function startQuiz(data) {
     gameState = 'quiz';
     quizOverlay.style.display = 'block';
-    document.getElementById('quiz-title').innerText = `You found ${data.name}!`;
+    document.getElementById('quiz-title').innerText = `Scanned ${data.name}!`;
     document.getElementById('quiz-desc').innerText = "What is it?";
     optionsDiv.innerHTML = '';
     ["Element", "Compound", "Mixture"].forEach(choice => {
@@ -166,7 +187,7 @@ function checkAnswer(isCorrect) {
 
 function showVictoryScreen() {
     gameState = 'victory';
-    document.getElementById('final-score-display').innerText = `Total Stars: ${score}`;
+    document.getElementById('final-score-display').innerText = `Stars Earned: ${score}`;
     victoryOverlay.style.display = 'block';
     let hs = JSON.parse(localStorage.getItem('molMinerScores')) || [];
     hs.push({ name: studentName, score: score });
