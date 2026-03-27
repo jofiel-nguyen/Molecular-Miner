@@ -39,7 +39,7 @@ Since this is a single-file application, setup is instant:
 3.  No installation or server hosting is required!
 
 ## 👨‍🏫 Credits
-* **Lead Instructional Designer:** [Your Name/School Name]
+* **Lead Instructional Designer:** Jofiel Nguyen
 * **Concept:** Based on the "Gold Digger" arcade mechanic.
 * **Framework:** HTML5 Canvas & Vanilla JavaScript.
 
