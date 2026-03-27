@@ -3,41 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Molecular Miner: TEKS 8.6 Edition</title>
+    <title>Molecular Miner: Cartoon Edition!</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="ui">
-        <h2 id="score">Score: 0</h2>
-        <p>Click/Tap to Mine Matter!</p>
+        <h2 id="score">⭐ Points: 0</h2>
+        <h3 id="timer">⏰ Time: 05:00</h3>
     </div>
 
     <button id="glossary-btn" onclick="toggleGlossary(true)">📖 Field Guide</button>
 
+    <div id="start-overlay" class="modal" style="display: block;">
+        <h1 style="color: #FFD93D; font-size: 40px; text-shadow: 3px 3px #FF6B6B;">MOLECULAR MINER</h1>
+        <p>Enter your Hero Name to start the mission!</p>
+        <input type="text" id="student-name" placeholder="Your Name Here..." maxlength="15">
+        <br>
+        <button onclick="startGame()" style="font-size: 24px; margin-top: 20px;">GO! 🚀</button>
+    </div>
+
     <div id="quiz-overlay" class="modal">
-        <h2 id="quiz-title">Scanner Result</h2>
+        <h2 id="quiz-title" style="color: #6BCB77;">Scanning...</h2>
         <p id="quiz-desc"></p>
         <div id="options"></div>
     </div>
 
     <div id="glossary-overlay" class="modal">
-        <h2>🔬 Science Field Guide</h2>
-        <div class="guide-item"><b>Element:</b> Pure substance; one type of atom (e.g., Au, Ag).</div>
-        <div class="guide-item"><b>Compound:</b> Two or more elements chemically bonded (e.g., H₂O, NaCl).</div>
-        <div class="guide-item"><b>Mixture:</b> Physical blend of substances. Can be Heterogeneous (uneven) or Homogeneous (uniform).</div>
-        <div class="guide-item"><b>Law of Conservation:</b> Mass is neither created nor destroyed. Atoms on the LEFT must equal atoms on the RIGHT.</div>
-        <button onclick="toggleGlossary(false)">Back to Game</button>
+        <h2 style="color: #4D96FF;">🔬 Science Secrets</h2>
+        <div class="guide-item"><b>Element:</b> Just ONE type of atom! (Pure stuff like Gold)</div>
+        <div class="guide-item"><b>Compound:</b> Atoms stuck together! (Like Water)</div>
+        <div class="guide-item"><b>Mixture:</b> Just mixed up, not stuck! (Like Trail Mix)</div>
+        <div class="guide-item"><b>Conservation:</b> You can't lose atoms! Both sides must be EQUAL.</div>
+        <button onclick="toggleGlossary(false)">Back to Play!</button>
     </div>
 
     <div id="victory-overlay" class="modal">
-        <h1 style="color: #f1c40f;">🏆 MISSION SUCCESS!</h1>
-        <h2 id="final-score-display">Final Score: 0</h2>
+        <h1 style="color: #FFD93D;">🌈 MISSION COMPLETE!</h1>
+        <h2 id="final-score-display">Total Stars: 0</h2>
         <div id="leaderboard-section">
-            <h3>🚀 Top Mine Technicians</h3>
+            <h3>🏆 Hall of Fame</h3>
             <ul id="leaderboard-list"></ul>
         </div>
-        <button onclick="location.reload()">New Mission</button>
+        <button onclick="location.reload()">Play Again!</button>
     </div>
 
     <canvas id="gameCanvas"></canvas>
