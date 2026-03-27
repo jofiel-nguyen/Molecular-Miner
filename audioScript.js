@@ -1,67 +1,48 @@
-const sounds = {
-    bgMusic: new Audio('background_music.mp3'),
-    catch: new Audio('catch.mp3'),
-    correct: new Audio('correct.mp3'),
-    wrong: new Audio('wrong.mp3'),
-    powerup: new Audio('powerup.mp3'),
-    launch: new Audio('launch.mp3'),
-    bossHit: new Audio('boss_hit.mp3')
+const audioFiles = {
+    bgMusic: new Audio('background_theme.mp3'),
+    sfxLibrary: new Audio('game_sounds.mp3')
 };
 
-const sfxSettings = {
-    catch:   { start: 2.0,  duration: 1.0 },
-    correct: { start: 5.0,  duration: 1.5 },
-    wrong:   { start: 10.0, duration: 1.2 },
-    powerup: { start: 15.0, duration: 2.0 },
-    launch:  { start: 1.0,  duration: 0.8 },
-    bossHit: { start: 20.0, duration: 1.5 }
+const sfxMap = {
+    catch:   { start: 5.0,  duration: 1.2 },
+    correct: { start: 15.4, duration: 1.5 },
+    wrong:   { start: 25.0, duration: 2.0 },
+    powerup: { start: 40.2, duration: 2.5 },
+    launch:  { start: 55.0, duration: 0.8 },
+    bossHit: { start: 70.0, duration: 1.5 }
 };
 
 let isMuted = false;
 let masterVolume = 0.5;
 
-sounds.bgMusic.loop = true;
+audioFiles.bgMusic.loop = true;
 
 function playMusic() {
-    sounds.bgMusic.volume = masterVolume * 0.4;
-    sounds.bgMusic.play().catch(e => {});
+    audioFiles.bgMusic.volume = masterVolume * 0.4;
+    audioFiles.bgMusic.play().catch(e => console.log("Click Start to enable audio"));
 }
 
-function playSound(name) {
-    if (isMuted || !sounds[name]) return;
+function playSound(action) {
+    if (isMuted) return;
 
-    const config = sfxSettings[name];
-    const s = sounds[name].cloneNode();
-    
-    s.volume = masterVolume;
-    
-    if (config) {
-        s.currentTime = config.start;
-        s.play().catch(e => {});
-        
-        setTimeout(() => {
-            s.pause();
-            s.remove();
-        }, config.duration * 1000);
-    } else {
-        s.play().catch(e => {});
-    }
+    const config = sfxMap[action];
+    if (!config) return;
+
+    const soundClip = audioFiles.sfxLibrary.cloneNode();
+    soundClip.volume = masterVolume;
+    soundClip.currentTime = config.start;
+    soundClip.play().catch(e => {});
+
+    setTimeout(() => {
+        soundClip.pause();
+        soundClip.remove();
+    }, config.duration * 1000);
 }
 
-function toggleMute() {
+function handleMuteToggle() {
     isMuted = !isMuted;
-    sounds.bgMusic.muted = isMuted;
-    return isMuted;
-}
-
-function setVolume(val) {
-    masterVolume = val;
-    sounds.bgMusic.volume = val * 0.4;
-}
-
-function stopSound(name) {
-    if (sounds[name]) {
-        sounds[name].pause();
-        sounds[name].currentTime = 0;
-    }
+    audioFiles.bgMusic.muted = isMuted;
+    const btn = document.getElementById('mute-btn');
+    btn.innerText = isMuted ? "🔇" : "🔊";
+    btn.style.background = isMuted ? "#808080" : "#4D96FF";
 }
