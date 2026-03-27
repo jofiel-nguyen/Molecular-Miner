@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Molecular Miner: Final Mission</title>
+    <title>Molecular Miner</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div id="ui">
         <h2 id="score">⭐ Points: 0</h2>
         <h2 id="combo-display" style="color: #FF6B6B; display: none;">🔥 COMBO X1</h2>
@@ -15,8 +14,22 @@
         <p id="player-tag">Hero: <span id="user-display">---</span></p>
     </div>
 
-    <button id="mute-btn" onclick="handleMuteToggle()">🔊</button>
-    <button id="glossary-btn" onclick="toggleGlossary(true)">📖 Field Guide</button>
+    <div class="controls">
+        <button id="mute-btn" onclick="handleMuteToggle()">🔊</button>
+        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="setVolume(this.value)">
+        <button id="glossary-btn" onclick="toggleGlossary(true)">📖 Field Guide</button>
+    </div>
+
+    <div id="glossary-overlay" class="modal">
+        <h1 style="color: #FFD93D;">📖 Molecular Field Guide</h1>
+        <div style="text-align: left; background: rgba(0,0,0,0.5); padding: 20px; border-radius: 10px; max-height: 300px; overflow-y: auto;">
+            <p><strong>Elements:</strong> Pure substances made of one type of atom (e.g., Gold, Silver).</p>
+            <p><strong>Compounds:</strong> Two or more elements chemically bonded (e.g., Water, Salt).</p>
+            <p><strong>Mixtures:</strong> Different substances physically mixed but not bonded (e.g., Brass, Granite).</p>
+        </div>
+        <br>
+        <button onclick="toggleGlossary(false)">Back to Mission 🚀</button>
+    </div>
 
     <div id="start-overlay" class="modal" style="display: block;">
         <h1 style="color: #FFD93D; font-size: 40px; text-shadow: 3px 3px #FF6B6B;">MOLECULAR MINER</h1>
@@ -28,27 +41,33 @@
 
     <div id="quiz-overlay" class="modal">
         <h2 id="quiz-title" style="color: #6BCB77;">Scanning...</h2>
-        <div id="quiz-desc"></div>
         <div id="options"></div>
-    </div>
-
-    <div id="glossary-overlay" class="modal">
-        <h2 style="color: #4D96FF;">🔬 Science Secrets</h2>
-        <p><b>Element:</b> Pure substance, one type of atom.</p>
-        <p><b>Compound:</b> Atoms chemically bonded.</p>
-        <p><b>Mixture:</b> Physically mixed, not bonded.</p>
-        <button onclick="toggleGlossary(false)">Back to Play!</button>
     </div>
 
     <div id="victory-overlay" class="modal">
         <h1 style="color: #FFD93D;">🌈 MISSION COMPLETE!</h1>
         <h2 id="final-score-display">Total Stars: 0</h2>
+        <div class="leaderboard-box">
+            <h3>🏆 Top Heroes</h3>
+            <ul id="leaderboard-list-vic"></ul>
+        </div>
         <button onclick="location.reload()">Play Again!</button>
+    </div>
+
+    <div id="game-over-overlay" class="modal">
+        <h1 style="color: #FF6B6B;">⌛ TIME'S UP!</h1>
+        <h2 id="final-score-game-over">Total Stars: 0</h2>
+        <div class="leaderboard-box">
+            <h3>🏆 Top Heroes</h3>
+            <ul id="leaderboard-list-go"></ul>
+        </div>
+        <button onclick="location.reload()">RETRY MISSION 🚀</button>
     </div>
 
     <canvas id="gameCanvas"></canvas>
 
     <script src="audioScript.js"></script>
-    <script src="logicScript.js"></script>
+    <script src="constants.js"></script>
+    <script src="game.js"></script>
 </body>
 </html>

@@ -1,48 +1,38 @@
-const audioFiles = {
-    bgMusic: new Audio('background_theme.mp3'),
-    sfxLibrary: new Audio('game_sounds.mp3')
+const sounds = {
+    bgMusic: new Audio('./audio/background_theme.mp3'),
+    catch: new Audio('./audio/catch.mp3'),
+    correct: new Audio('./audio/correct.mp3'),
+    wrong: new Audio('./audio/wrong.mp3'),
+    powerup: new Audio('./audio/powerup.mp3'),
+    launch: new Audio('./audio/launch.mp3'),
+    bossHit: new Audio('./audio/boss_hit.mp3')
 };
 
-const sfxMap = {
-    catch:   { start: 5.0,  duration: 1.2 },
-    correct: { start: 15.4, duration: 1.5 },
-    wrong:   { start: 25.0, duration: 2.0 },
-    powerup: { start: 40.2, duration: 2.5 },
-    launch:  { start: 55.0, duration: 0.8 },
-    bossHit: { start: 70.0, duration: 1.5 }
-};
-
+sounds.bgMusic.loop = true;
 let isMuted = false;
 let masterVolume = 0.5;
 
-audioFiles.bgMusic.loop = true;
-
 function playMusic() {
-    audioFiles.bgMusic.volume = masterVolume * 0.4;
-    audioFiles.bgMusic.play().catch(e => console.log("Click Start to enable audio"));
+    sounds.bgMusic.volume = masterVolume * 0.3;
+    sounds.bgMusic.play().catch(e => {});
 }
 
-function playSound(action) {
-    if (isMuted) return;
+function setVolume(val) {
+    masterVolume = parseFloat(val);
+    sounds.bgMusic.volume = masterVolume * 0.3;
+}
 
-    const config = sfxMap[action];
-    if (!config) return;
-
-    const soundClip = audioFiles.sfxLibrary.cloneNode();
-    soundClip.volume = masterVolume;
-    soundClip.currentTime = config.start;
-    soundClip.play().catch(e => {});
-
-    setTimeout(() => {
-        soundClip.pause();
-        soundClip.remove();
-    }, config.duration * 1000);
+function playSound(name) {
+    if (isMuted || !sounds[name]) return;
+    const s = sounds[name].cloneNode();
+    s.volume = masterVolume;
+    s.play().catch(e => {});
+    setTimeout(() => { s.pause(); s.currentTime = 0; s.remove(); }, 1000);
 }
 
 function handleMuteToggle() {
     isMuted = !isMuted;
-    audioFiles.bgMusic.muted = isMuted;
+    sounds.bgMusic.muted = isMuted;
     const btn = document.getElementById('mute-btn');
     btn.innerText = isMuted ? "🔇" : "🔊";
-    btn.style.background = isMuted ? "#808080" : "#4D96FF";
 }
