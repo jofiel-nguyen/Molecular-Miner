@@ -30,6 +30,16 @@
         <button onclick="toggleGlossary(false)">Back to Game</button>
     </div>
 
+    <div id="victory-overlay" class="modal">
+        <h1 style="color: #f1c40f;">🏆 MISSION SUCCESS!</h1>
+        <h2 id="final-score-display">Final Score: 0</h2>
+        <div id="leaderboard-section">
+            <h3>🚀 Top Mine Technicians</h3>
+            <ul id="leaderboard-list"></ul>
+        </div>
+        <button onclick="location.reload()">New Mission</button>
+    </div>
+
     <canvas id="gameCanvas"></canvas>
 
     <script src="script.js"></script>
