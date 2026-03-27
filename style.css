@@ -24,4 +24,28 @@ ul { list-style: none; padding: 0; }
     width: 80%;
     max-width: 500px;
 }
+.leaderboard-box {
+    background: rgba(0, 0, 0, 0.3);
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #FFD93D;
+}
+
+.leaderboard-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+}
+
+.leaderboard-box li {
+    padding: 5px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.leaderboard-box li:last-child {
+    border-bottom: none;
+}
 li { display: flex; justify-content: space-between; padding: 5px; border-bottom: 1px solid #eee; color: #333; }

@@ -182,8 +182,47 @@ function startTimer() {
 
 function showVictoryScreen() { 
     gameState = 'victory'; 
+    
     document.getElementById('final-score-display').innerText = `Total Stars: ${score}`;
+    document.getElementById('final-score-game-over').innerText = `Total Stars: ${score}`;
+    
+    saveHighScore(studentName, score);
+    
     document.getElementById('victory-overlay').style.display = 'block'; 
+}
+
+function saveHighScore(name, points) {
+    let leaderboard = JSON.parse(localStorage.getItem('minerLeaderboard')) || [];
+    
+    leaderboard.push({ name: name, score: points });
+    
+    leaderboard.sort((a, b) => b.score - a.score);
+    leaderboard = leaderboard.slice(0, 5);
+    
+    localStorage.setItem('minerLeaderboard', JSON.stringify(leaderboard));
+    
+    displayLeaderboard();
+}
+
+function displayLeaderboard() {
+    let leaderboard = JSON.parse(localStorage.getItem('minerLeaderboard')) || [];
+    
+    const listVic = document.getElementById('leaderboard-list-vic');
+    const listGo = document.getElementById('leaderboard-list-go');
+    
+    const html = leaderboard.map((entry, index) => 
+        `<li>${index + 1}. ${entry.name} — ${entry.score} ⭐</li>`
+    ).join('');
+    
+    if (listVic) listVic.innerHTML = html;
+    if (listGo) listGo.innerHTML = html;
+}
+
+function resetLeaderboard() {
+    if(confirm("Clear all high scores?")) {
+        localStorage.removeItem('minerLeaderboard');
+        displayLeaderboard();
+    }
 }
 
 function toggleGlossary(s) { 
@@ -203,3 +242,4 @@ window.addEventListener('mousedown', () => {
 });
 
 draw();
+displayLeaderboard();
