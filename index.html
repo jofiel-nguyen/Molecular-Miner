@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Molecular Miner: Cartoon Edition!</title>
+    <title>Molecular Miner: Glow Edition!</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,10 +18,10 @@
 
     <div id="start-overlay" class="modal" style="display: block;">
         <h1 style="color: #FFD93D; font-size: 40px; text-shadow: 3px 3px #FF6B6B;">MOLECULAR MINER</h1>
-        <p>Enter your Hero Name to start the mission!</p>
-        <input type="text" id="student-name" placeholder="Your Name Here..." maxlength="15">
+        <p>Enter your Hero Name to start!</p>
+        <input type="text" id="student-name" placeholder="Your Name..." maxlength="15">
         <br>
-        <button onclick="startGame()" style="font-size: 24px; margin-top: 20px;">GO! 🚀</button>
+        <button onclick="startGame()" style="font-size: 24px; margin-top: 20px;">START MISSION! 🚀</button>
     </div>
 
     <div id="quiz-overlay" class="modal">
@@ -32,11 +32,11 @@
 
     <div id="glossary-overlay" class="modal">
         <h2 style="color: #4D96FF;">🔬 Science Secrets</h2>
-        <div class="guide-item"><b>Element:</b> Just ONE type of atom!</div>
-        <div class="guide-item"><b>Compound:</b> Atoms stuck together!</div>
-        <div class="guide-item"><b>Mixture:</b> Just mixed up, not stuck!</div>
+        <div class="guide-item"><b>Element:</b> Only ONE type of atom!</div>
+        <div class="guide-item"><b>Compound:</b> Different atoms bonded together!</div>
+        <div class="guide-item"><b>Mixture:</b> Mixed but not chemically bonded!</div>
         <hr>
-        <div class="guide-item"><b>Law of Conservation of Mass:</b> Mass is never created or destroyed. The number of atoms going IN must equal the atoms coming OUT!</div>
+        <div class="guide-item"><b>Conservation of Mass:</b> Mass is never created or destroyed. Atoms In = Atoms Out!</div>
         <button onclick="toggleGlossary(false)">Back to Play!</button>
     </div>
 
