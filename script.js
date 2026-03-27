@@ -8,10 +8,9 @@ const optionsDiv = document.getElementById('options');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// --- STATE ---
 let studentName = "";
 let score = 0;
-let timeLeft = 300; // 5 mins
+let timeLeft = 300; 
 let gameState = 'waiting'; 
 let angle = 0;
 let angleDir = 0.03;
@@ -19,7 +18,7 @@ let clawLength = 70;
 let launchSpeed = 14;
 let caughtItem = null;
 let bossDefeated = false;
-let timerStarted = false; // Prevents timer from starting before click
+let timerStarted = false;
 const minerPos = { x: canvas.width / 2, y: 150 };
 
 const matterTypes = [
@@ -31,31 +30,25 @@ const matterTypes = [
     { name: "Granite", type: "Mixture", color: "#808080", size: 35 }
 ];
 
+// New Conservation of Mass Equations
+const conservationQuests = [
+    { eq: "4 Fe + ? O₂ → 2 Fe₂O₃", ans: "3", options: ["2", "3", "4"] },
+    { eq: "CH₄ + 2 O₂ → CO₂ + ? H₂O", ans: "2", options: ["1", "2", "3"] },
+    { eq: "2 H₂ + O₂ → ? H₂O", ans: "2", options: ["1", "2", "4"] },
+    { eq: "N₂ + 3 H₂ → ? NH₃", ans: "2", options: ["2", "3", "6"] }
+];
+
 let items = [];
 
-// FIXED FUNCTION: This now hides the UI and starts everything correctly
 function startGame() {
     const input = document.getElementById('student-name').value;
-    if (!input) {
-        alert("Enter your name first!");
-        return;
-    }
+    if (!input) { alert("Enter your name first!"); return; }
     studentName = input;
-    // Update the name on the screen
     document.getElementById('user-display').innerText = studentName;
-    
-    // Hide the start screen
     startOverlay.style.display = 'none';
-    
-    // Change game state to start the claw
     gameState = 'swinging';
     initItems();
-    
-    // Start the timer
-    if(!timerStarted) {
-        startTimer();
-        timerStarted = true;
-    }
+    if(!timerStarted) { startTimer(); timerStarted = true; }
 }
 
 function initItems() {
@@ -73,17 +66,12 @@ function initItems() {
 
 function startTimer() {
     const timerLoop = setInterval(() => {
-        // Only run timer if we are in the game
         if (gameState !== 'waiting' && gameState !== 'victory') {
             timeLeft--;
             let m = Math.floor(timeLeft / 60);
             let s = timeLeft % 60;
             document.getElementById('timer').innerText = `⏰ Time: ${m}:${s < 10 ? '0' : ''}${s}`;
-            
-            if (timeLeft <= 0) {
-                clearInterval(timerLoop);
-                showVictoryScreen();
-            }
+            if (timeLeft <= 0) { clearInterval(timerLoop); showVictoryScreen(); }
         }
     }, 1000);
 }
@@ -153,12 +141,26 @@ function update() {
 function startBossLevel() {
     gameState = 'boss';
     quizOverlay.style.display = 'block';
-    document.getElementById('quiz-title').innerText = "🔥 FINAL BOSS!";
-    document.getElementById('quiz-desc').innerHTML = "Balance the atoms!<br><div class='equation'>4 Fe + ? O₂ → 2 Fe₂O₃</div>";
+    const quest = conservationQuests[Math.floor(Math.random() * conservationQuests.length)];
+    
+    document.getElementById('quiz-title').innerText = "⚖️ MASS CHALLENGE!";
+    document.getElementById('quiz-desc').innerHTML = `Balance for the Law of Conservation:<br><div class='equation'>${quest.eq}</div>`;
+    
     optionsDiv.innerHTML = '';
-    [{t:"3 O₂", v:true}, {t:"2 O₂", v:false}].forEach(o => {
-        let b = document.createElement('button'); b.innerText = o.t;
-        b.onclick = () => { if (o.v) { bossDefeated = true; score += 1000; checkAnswer(true); } else { score -= 100; alert("Not balanced!"); }};
+    quest.options.forEach(opt => {
+        let b = document.createElement('button');
+        b.innerText = opt;
+        b.onclick = () => {
+            if (opt === quest.ans) {
+                bossDefeated = true;
+                score += 500;
+                checkAnswer(true);
+            } else {
+                score -= 100;
+                alert("The atoms aren't balanced yet! Try again.");
+                document.getElementById('score').innerText = `⭐ Points: ${score}`;
+            }
+        };
         optionsDiv.appendChild(b);
     });
 }
@@ -167,7 +169,7 @@ function startQuiz(data) {
     gameState = 'quiz';
     quizOverlay.style.display = 'block';
     document.getElementById('quiz-title').innerText = `Scanned ${data.name}!`;
-    document.getElementById('quiz-desc').innerText = "What is it?";
+    document.getElementById('quiz-desc').innerText = "What category of matter is this?";
     optionsDiv.innerHTML = '';
     ["Element", "Compound", "Mixture"].forEach(choice => {
         let b = document.createElement('button'); b.innerText = choice;
@@ -177,8 +179,12 @@ function startQuiz(data) {
 }
 
 function checkAnswer(isCorrect) {
-    if (isCorrect) { score += 100; angleDir += (angleDir > 0 ? 0.005 : -0.005); } 
-    else { score -= 50; }
+    if (isCorrect) { 
+        score += 100; 
+        angleDir += (angleDir > 0 ? 0.005 : -0.005); 
+    } else { 
+        score -= 50; 
+    }
     document.getElementById('score').innerText = `⭐ Points: ${score}`;
     quizOverlay.style.display = 'none';
     if (bossDefeated) showVictoryScreen();
