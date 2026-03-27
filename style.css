@@ -1,7 +1,7 @@
 body { 
     margin: 0; 
     background: #4D96FF; 
-    font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; 
+    font-family: 'Comic Sans MS', sans-serif; 
     overflow: hidden; 
     color: white; 
 }
@@ -20,6 +20,12 @@ canvas {
     text-align: left; 
     pointer-events: none;
     text-shadow: 2px 2px #000;
+}
+
+#player-tag {
+    font-size: 18px;
+    color: #FFD93D;
+    margin-top: 5px;
 }
 
 #glossary-btn { 
@@ -60,7 +66,6 @@ input[type="text"] {
     border: 3px solid #4D96FF;
     width: 80%;
     margin-top: 10px;
-    outline: none;
 }
 
 button { 
@@ -74,7 +79,6 @@ button {
     border-radius: 50px; 
     font-weight: bold; 
     box-shadow: 0 5px #4ca857;
-    transition: 0.1s;
 }
 
 button:active { transform: translateY(4px); box-shadow: none; }
@@ -85,13 +89,4 @@ button:active { transform: translateY(4px); box-shadow: none; }
     padding: 15px; 
     border: 3px dashed #FF6B6B;
     border-radius: 15px;
-    color: #333;
-}
-
-#leaderboard-list li {
-    background: #eee;
-    margin: 5px 0;
-    padding: 8px;
-    border-radius: 10px;
-    font-weight: bold;
 }
