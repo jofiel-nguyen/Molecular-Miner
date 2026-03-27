@@ -11,6 +11,7 @@
     <div id="ui">
         <h2 id="score">⭐ Points: 0</h2>
         <h3 id="timer">⏰ Time: 05:00</h3>
+        <p id="player-tag">Hero: <span id="user-display">---</span></p>
     </div>
 
     <button id="glossary-btn" onclick="toggleGlossary(true)">📖 Field Guide</button>
@@ -31,10 +32,9 @@
 
     <div id="glossary-overlay" class="modal">
         <h2 style="color: #4D96FF;">🔬 Science Secrets</h2>
-        <div class="guide-item"><b>Element:</b> Just ONE type of atom! (Pure stuff like Gold)</div>
-        <div class="guide-item"><b>Compound:</b> Atoms stuck together! (Like Water)</div>
-        <div class="guide-item"><b>Mixture:</b> Just mixed up, not stuck! (Like Trail Mix)</div>
-        <div class="guide-item"><b>Conservation:</b> You can't lose atoms! Both sides must be EQUAL.</div>
+        <div class="guide-item"><b>Element:</b> Just ONE type of atom!</div>
+        <div class="guide-item"><b>Compound:</b> Atoms stuck together!</div>
+        <div class="guide-item"><b>Mixture:</b> Just mixed up, not stuck!</div>
         <button onclick="toggleGlossary(false)">Back to Play!</button>
     </div>
 
@@ -49,7 +49,6 @@
     </div>
 
     <canvas id="gameCanvas"></canvas>
-
     <script src="script.js"></script>
 </body>
 </html>
