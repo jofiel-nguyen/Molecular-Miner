@@ -4,7 +4,7 @@
 ![Version](https://img.shields.io/badge/Version-1.0.0-blue)
 ![Educational Standard](https://img.shields.io/badge/TEKS-8.6A%20%26%208.6B-green)
 
-**Molecular Miner** is a high-energy, web-based arcade game designed to help 8th-grade science students master the **Classification of Matter** and the **Law of Conservation of Mass**. 
+**Molecular Miner** is a high-energy, web-based arcade game designed to help 8th-grade science students master the **Classification of Matter**.
 
 ---
 
@@ -14,7 +14,7 @@ To play the game, simply open the `index.html` file in any modern web browser.
 ## 🎯 Educational Standards (Texas TEKS)
 This game is specifically aligned with the following middle school science standards:
 * **TEKS 8.6(A):** Differentiate between elements, compounds, and mixtures, including homogeneous and heterogeneous mixtures.
-* **TEKS 8.6(B):** Demonstrate and explain the **Law of Conservation of Mass** using balanced chemical equations.
+
 
 ## 🎮 Game Mechanics
 * **Mining:** Use the mechanical claw to grab underground matter.
