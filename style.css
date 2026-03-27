@@ -1,39 +1,39 @@
 body { 
     margin: 0; 
-    background: #1a1a1a; 
-    font-family: 'Segoe UI', Tahoma, sans-serif; 
+    background: #4D96FF; 
+    font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; 
     overflow: hidden; 
     color: white; 
-    text-align: center; 
 }
 
 canvas { 
-    background: radial-gradient(circle, #2c3e50 0%, #000000 100%); 
+    background: linear-gradient(#87CEEB 0%, #6BCB77 30%, #5d4037 30%); 
     display: block; 
     margin: 0 auto; 
-    cursor: crosshair; 
-    border-bottom: 10px solid #2ecc71; 
+    border-bottom: 15px solid #3d2b1f; 
 }
 
 #ui { 
     position: absolute; 
-    top: 10px; 
+    top: 15px; 
     left: 20px; 
     text-align: left; 
-    pointer-events: none; 
+    pointer-events: none;
+    text-shadow: 2px 2px #000;
 }
 
 #glossary-btn { 
     position: absolute; 
     top: 20px; 
     right: 20px; 
-    padding: 10px 15px; 
-    background: #34495e; 
+    padding: 12px 20px; 
+    background: #FF6B6B; 
     color: white; 
-    border: 2px solid #ecf0f1; 
+    border: 4px solid white; 
     cursor: pointer; 
-    z-index: 10;
-    border-radius: 5px; 
+    border-radius: 50px; 
+    font-weight: bold;
+    box-shadow: 0 4px #c44545;
 }
 
 .modal { 
@@ -42,51 +42,56 @@ canvas {
     top: 50%; 
     left: 50%; 
     transform: translate(-50%, -50%);
-    background: rgba(10, 10, 10, 0.98); 
+    background: white; 
     padding: 30px; 
-    border: 4px solid #f1c40f; 
-    border-radius: 15px; 
+    border: 8px solid #FFD93D; 
+    border-radius: 30px; 
     z-index: 100; 
-    width: 85%; 
-    max-width: 500px; 
-    box-shadow: 0 0 50px rgba(241, 196, 15, 0.2);
+    width: 80%; 
+    max-width: 450px; 
+    color: #333;
+    box-shadow: 0 10px 0 #d4ac0d;
+}
+
+input[type="text"] {
+    padding: 15px;
+    font-size: 20px;
+    border-radius: 15px;
+    border: 3px solid #4D96FF;
+    width: 80%;
+    margin-top: 10px;
+    outline: none;
 }
 
 button { 
-    padding: 12px 24px; 
-    margin: 8px; 
-    font-size: 16px; 
+    padding: 15px 30px; 
+    margin: 10px; 
+    font-size: 18px; 
     cursor: pointer; 
-    background: #f1c40f; 
+    background: #6BCB77; 
+    color: white;
     border: none; 
-    border-radius: 5px; 
+    border-radius: 50px; 
     font-weight: bold; 
-    transition: transform 0.1s;
+    box-shadow: 0 5px #4ca857;
+    transition: 0.1s;
 }
 
-button:hover { transform: scale(1.05); background: #d4ac0d; }
+button:active { transform: translateY(4px); box-shadow: none; }
 
 .equation { 
-    font-family: 'Courier New', monospace;
-    color: #2ecc71; 
-    font-size: 22px; 
-    margin: 15px 0; 
-    background: #000; 
+    font-size: 24px; 
+    background: #F9F9F9; 
     padding: 15px; 
-    border-radius: 5px; 
-    border: 1px solid #333;
+    border: 3px dashed #FF6B6B;
+    border-radius: 15px;
+    color: #333;
 }
 
-#leaderboard-section {
-    margin: 20px 0;
-    background: #222;
-    padding: 10px;
-    border-radius: 8px;
-}
-
-#leaderboard-list {
-    list-style: none;
-    padding: 0;
-    color: #55efc4;
-    font-family: monospace;
+#leaderboard-list li {
+    background: #eee;
+    margin: 5px 0;
+    padding: 8px;
+    border-radius: 10px;
+    font-weight: bold;
 }
